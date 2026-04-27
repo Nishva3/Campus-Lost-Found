@@ -1,0 +1,3 @@
+.app { min-height: 100vh; display: flex; flex-direction: column; }
+.main-with-nav { margin-top: 70px; flex: 1; }
+.main-full { flex: 1; }

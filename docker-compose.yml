@@ -1,0 +1,206 @@
+version: '3.8'
+
+services:
+  # ─── DATABASES ───────────────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: lf_postgres
+    environment:
+      POSTGRES_USER: lfuser
+      POSTGRES_PASSWORD: lfpass
+      POSTGRES_DB: lostfound
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./init-postgres.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - lf_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lfuser -d lostfound"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongodb:
+    image: mongo:latest
+    container_name: lf_mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: lfuser
+      MONGO_INITDB_ROOT_PASSWORD: lfpass
+      MONGO_INITDB_DATABASE: lostfound
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - lf_network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── MESSAGE BROKER ──────────────────────────────────────────
+  activemq:
+    image: rmohr/activemq:latest
+    container_name: lf_activemq
+    ports:
+      - "61616:61616"   # OpenWire/JMS
+      - "61613:61613"   # STOMP
+      - "8161:8161"     # Web console
+    environment:
+      ACTIVEMQ_ADMIN_LOGIN: admin
+      ACTIVEMQ_ADMIN_PASSWORD: admin
+    networks:
+      - lf_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8161/admin || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  # ─── SERVICES ────────────────────────────────────────────────
+  auth-service:
+    build: ./auth-service
+    container_name: lf_auth
+    environment:
+      PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: lfuser
+      DB_PASS: lfpass
+      DB_NAME: lostfound
+      JWT_SECRET: campus_lf_secret_2024
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - lf_network
+    restart: unless-stopped
+
+  item-service:
+    build: ./item-service
+    container_name: lf_items
+    environment:
+      PORT: 3002
+      MONGO_URI: mongodb://lfuser:lfpass@mongodb:27017/lostfound?authSource=admin
+      ACTIVEMQ_URL: tcp://activemq:61613?wireFormat.maxFrameSize=104857600
+      JWT_SECRET: campus_lf_secret_2024
+    ports:
+      - "3002:3002"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - lf_network
+    restart: unless-stopped
+
+  claim-service:
+    build: ./claim-service
+    container_name: lf_claims
+    environment:
+      PORT: 3003
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: lfuser
+      DB_PASS: lfpass
+      DB_NAME: lostfound
+      ACTIVEMQ_URL: tcp://activemq:61613
+      JWT_SECRET: campus_lf_secret_2024
+    ports:
+      - "3003:3003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - lf_network
+    restart: unless-stopped
+
+  notification-service:
+    build: ./notification-service
+    container_name: lf_notifications
+    environment:
+      PORT: 3004
+      MONGO_URI: mongodb://lfuser:lfpass@mongodb:27017/lostfound?authSource=admin
+      ACTIVEMQ_URL: tcp://activemq:61613
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+    ports:
+      - "3004:3004"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - lf_network
+    restart: unless-stopped
+
+  search-service:
+    build: ./search-service
+    container_name: lf_search
+    environment:
+      PORT: 3005
+      MONGO_URI: mongodb://lfuser:lfpass@mongodb:27017/lostfound?authSource=admin
+      JWT_SECRET: campus_lf_secret_2024
+    ports:
+      - "3005:3005"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - lf_network
+    restart: unless-stopped
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: lf_gateway
+    environment:
+      PORT: 4000
+      AUTH_SERVICE_URL: http://auth-service:3001
+      ITEM_SERVICE_URL: http://item-service:3002
+      CLAIM_SERVICE_URL: http://claim-service:3003
+      NOTIFICATION_SERVICE_URL: http://notification-service:3004
+      SEARCH_SERVICE_URL: http://search-service:3005
+      JWT_SECRET: campus_lf_secret_2024
+    ports:
+      - "4000:4000"
+    depends_on:
+      - auth-service
+      - item-service
+      - claim-service
+      - notification-service
+      - search-service
+    networks:
+      - lf_network
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: lf_frontend
+    environment:
+      REACT_APP_API_URL: http://localhost:4000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    depends_on:
+      - api-gateway
+    networks:
+      - lf_network
+    restart: unless-stopped
+
+volumes:
+  pg_data:
+  mongo_data:
+
+networks:
+  lf_network:
+    driver: bridge
