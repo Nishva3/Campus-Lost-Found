@@ -225,3 +225,17 @@ campus-lost-found/
 ## License
 
 This project is open source and available under the [MIT License](LICENSE).
+
+## Screenshots
+LOGIN PAGE
+<img width="1919" height="911" alt="image" src="https://github.com/user-attachments/assets/a7e926c7-920e-47ea-9da0-93581e8589a5" />
+
+REGISTER PAGE
+<img width="1919" height="912" alt="image" src="https://github.com/user-attachments/assets/ee0ef49b-39f4-4f0c-aa85-e85f84295e1c" />
+
+USER DASHBOARD
+<img width="1919" height="912" alt="image" src="https://github.com/user-attachments/assets/2c01f07a-5c3f-4621-8f8d-7bbf26e6419b" />
+
+
+
+
