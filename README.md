@@ -14,6 +14,10 @@ A full-stack, microservices-based web application that helps university students
 - [Environment Variables](#environment-variables)
 - [API Reference](#api-reference)
 - [Project Structure](#project-structure)
+- [Licence](#license)
+- [Screenshots](#screenshots)
+  
+  
 
 ---
 
