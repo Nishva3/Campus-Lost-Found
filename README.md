@@ -243,28 +243,27 @@ This project is open source and available under the [MIT License](LICENSE).
 
 
 **REPORT ITEM**
-<img width="940" height="449" alt="image" src="https://github.com/user-attachments/assets/64b6061d-5944-441b-a371-ec1796fa8217" />
+<img width="1919" height="912" alt="image" src="https://github.com/user-attachments/assets/64b6061d-5944-441b-a371-ec1796fa8217" />
 
 
 
 **BROWSE ITEMS**
-<img width="940" height="447" alt="image" src="https://github.com/user-attachments/assets/5668b24c-0f22-4bc3-aa53-68d25a7b905e" />
+<img width="1919" height="912" alt="image" src="https://github.com/user-attachments/assets/5668b24c-0f22-4bc3-aa53-68d25a7b905e" />
 
 
 
 **ALERTS**
-<img width="940" height="447" alt="image" src="https://github.com/user-attachments/assets/cf38f4f1-1fa8-4977-a9c4-0ef12530dc81" />
+<img width="1919" height="912" alt="image" src="https://github.com/user-attachments/assets/cf38f4f1-1fa8-4977-a9c4-0ef12530dc81" />
 
 
 
 **SUBMIT CLAIM**
-<img width="470" height="446" alt="image" src="https://github.com/user-attachments/assets/af8f9825-c3b4-42c6-8f69-8f0e3638e50a" />
-<img width="470" height="449" alt="image" src="https://github.com/user-attachments/assets/9da91ecc-2261-4e86-a536-c1dcef1e6429" />
+<img width="955" height="712" alt="image" src="https://github.com/user-attachments/assets/af8f9825-c3b4-42c6-8f69-8f0e3638e50a" />  <img width="955" height="712" alt="image" src="https://github.com/user-attachments/assets/9da91ecc-2261-4e86-a536-c1dcef1e6429" />
 
 
 
 **APPROVE OR REJECT CLAIM**
-<img width="940" height="447" alt="image" src="https://github.com/user-attachments/assets/a4ec366c-d339-4615-9064-e92767a2a986" />
+<img width="1919" height="912" alt="image" src="https://github.com/user-attachments/assets/a4ec366c-d339-4615-9064-e92767a2a986" />
 
 
 
